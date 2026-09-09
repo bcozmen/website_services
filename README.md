@@ -62,19 +62,3 @@ Docker Compose is the deployment boundary: the portfolio calls service APIs, whi
 
 The services are intentionally independent. Each one can be monitored, scaled, or moved to GPU without coupling the rest of the application to its implementation details.
 
-## Why this project
-
-This is both a working backend foundation and a hands-on study of deploying machine-learning systems. It connects familiar web APIs with embeddings, vector search, density estimation, model persistence, GPU inference, and container orchestration.
-
-The longer-term direction is to take the same services from local containers toward Kubernetes and AWS. The learning path is documented in [roadmap.md](roadmap.md).
-
-```text
-												 Web portfolio
-															│
-												 Service APIs
-							┌───────────────┼───────────────┐
-							▼               ▼               ▼
-				Semantic search   Density Estimation   Code autocomplete
-							│               │               │
-					LanceDB       SQLite + PyTorch   Qwen 2.5 Coder
-```
