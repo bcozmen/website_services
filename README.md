@@ -62,3 +62,4 @@ Docker Compose is the deployment boundary: the portfolio calls service APIs, whi
 
 The services are intentionally independent. Each one can be monitored, scaled, or moved to GPU without coupling the rest of the application to its implementation details.
 
+Deneme
