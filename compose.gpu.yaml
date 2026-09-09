@@ -1,0 +1,15 @@
+services:
+  rag:
+    environment:
+      TARGET_DEVICE: cuda
+    gpus: all
+
+  mlops:
+    environment:
+      TARGET_DEVICE: cuda
+    gpus: all
+
+  autocomplete:
+    environment:
+      TARGET_DEVICE: cuda
+    gpus: all

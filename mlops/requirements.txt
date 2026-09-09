@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+numpy
+scikit-learn
+torch
+matplotlib

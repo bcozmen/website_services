@@ -1,0 +1,67 @@
+services:
+  rag:
+    image: rag-service:1.0
+    build:
+      context: ./rag
+    ports:
+      - "${RAG_PORT:-8003}:8003"
+    environment:
+      TARGET_DEVICE: ${RAG_DEVICE:-cpu}
+      RAG_MODEL_PATH: /models/embedding
+      # RAG_DATA_HOST_PATH is the LanceDB database directory itself. Mounting
+      # it at /data means the table is /data/wikipedia_rag.lance.
+      RAG_LANCEDB_PATH: /data
+      RAG_TABLE_NAME: ${RAG_TABLE_NAME:-wikipedia_rag}
+    volumes:
+      - ${RAG_MODEL_HOST_PATH:-./models/qwen3_embedding}:/models/embedding:ro
+      - ${RAG_DATA_HOST_PATH:-./data/rag}:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8003/ready', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  mlops:
+    image: mlops-service:1.0
+    build:
+      context: ./mlops
+    ports:
+      - "${MLOPS_PORT:-8002}:8002"
+    environment:
+      TARGET_DEVICE: ${MLOPS_DEVICE:-cpu}
+      DATABASE_URL: sqlite:////data/spatial_data.db
+      NN_MODEL_PATH: /data/nn_density_model.pth
+    volumes:
+      - mlops_data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/ready', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  autocomplete:
+    image: autocomplete-service:1.0
+    build:
+      context: ./autocomplete
+    ports:
+      - "${AUTOCOMPLETE_PORT:-8004}:8004"
+    environment:
+      TARGET_DEVICE: ${AUTOCOMPLETE_DEVICE:-cpu}
+      AUTOCOMPLETE_MODEL_PATH: /models/coder
+      AUTOCOMPLETE_ALLOWED_ORIGINS: ${AUTOCOMPLETE_ALLOWED_ORIGINS:-*}
+    volumes:
+      - ${AUTOCOMPLETE_MODEL_HOST_PATH:-./models/qwen2.5-coder}:/models/coder:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8004/ready', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  mlops_data:
