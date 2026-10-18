@@ -20,8 +20,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
 MODEL_PATH = os.getenv("AUTOCOMPLETE_MODEL_PATH", "/models/qwen2.5-coder")
-MAX_INPUT_CHARS = 4000
-DEFAULT_MAX_NEW_TOKENS = 100
+MAX_INPUT_CHARS = int(os.getenv("AUTOCOMPLETE_MAX_INPUT_CHARS", "2000"))
+DEFAULT_MAX_NEW_TOKENS = int(os.getenv("AUTOCOMPLETE_MAX_NEW_TOKENS", "24"))
 
 
 model = None
@@ -35,7 +35,7 @@ class AutocompleteRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=MAX_INPUT_CHARS)
     cursor_position: int | None = Field(default=None, ge=0)
     suffix: str = Field(default="", max_length=MAX_INPUT_CHARS)
-    max_new_tokens: int = Field(default=DEFAULT_MAX_NEW_TOKENS, ge=1, le=256)
+    max_new_tokens: int = Field(default=DEFAULT_MAX_NEW_TOKENS, ge=1, le=128)
     temperature: float = Field(default=0.2, ge=0.0, le=2.0)
     top_p: float = Field(default=0.9, gt=0.0, le=1.0)
 
@@ -79,7 +79,10 @@ async def lifespan(app: FastAPI):
         MODEL_PATH,
         torch_dtype=dtype,
         trust_remote_code=True,
-    ).to(device)
+    )
+
+
+    model = model.to(device)
     model.eval()
     print("Autocomplete model loaded.")
 

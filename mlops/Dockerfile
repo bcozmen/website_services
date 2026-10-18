@@ -10,7 +10,7 @@ WORKDIR /app
 
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade pip && pip install -r requirements.txt
+    pip install -r requirements.txt
 
 COPY main.py models.py database.py ./
 
